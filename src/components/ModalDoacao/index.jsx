@@ -27,6 +27,7 @@ const Modal = () => {
       <Segmented 
         options={['Doação Única', 'Doação Recorrente', 'Doação IR']}
         onChange={(value) => setSelectedOption(value)}
+        style={{ marginBottom: '20px' }}
       />
       {renderContent()}
     </>
