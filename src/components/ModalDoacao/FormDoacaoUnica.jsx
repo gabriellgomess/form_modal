@@ -15,7 +15,7 @@ const FormDoacaoUnica = () => {
         console.log(data);
         axios.post(`${import.meta.env.VITE_URL_AXIOS}/createClientAndDonation.php`, data)
             .then((response) => {
-                if(response.data.success){
+                if (response.data.success) {
                     MySwal.fire({
                         title: 'Sucesso!',
                         text: response.data.message,
@@ -34,7 +34,7 @@ const FormDoacaoUnica = () => {
                         icon: 'error',
                         confirmButtonText: 'Ok'
                     })
-                }               
+                }
             })
             .catch((error) => {
                 console.log(error.response);
@@ -45,7 +45,7 @@ const FormDoacaoUnica = () => {
         <Card>
             <h1>Formulário</h1>
             <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <Form.Item style={{ flexGrow: '3' }} label="Nome">
                         <Controller
                             name="nome"
@@ -115,11 +115,14 @@ const FormDoacaoUnica = () => {
                     </Form.Item>
                 </div>
                 <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Enviar
-                    </Button>
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                        <Button type="primary" htmlType="submit">
+                            Enviar
+                        </Button>
+                        <Button onClick={() => reset()}>Limpar</Button>
+                    </div>
                 </Form.Item>
-                <Button onClick={() => reset()}>Limpar</Button>
+
             </Form>
         </Card>
     );

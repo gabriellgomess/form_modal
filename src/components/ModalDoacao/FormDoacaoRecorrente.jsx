@@ -1,128 +1,95 @@
-import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { Form, Input, Button, Select, Card } from 'antd';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+import { useEffect, useState } from "react";
+import { Card, Form, Input, Button } from "antd";
+import { useForm, Controller, set } from 'react-hook-form';
+import axios from "axios";
 
-const { Option } = Select;
-const MySwal = withReactContent(Swal);
+const FormDoacaoRecorrente = ({ }) => {
+    const [isAuth, setIsAuth] = useState(false);
+    const [theUser, setTheUser] = useState({});
+    const [update, setUpdate] = useState(false);
+    const [doador, setDoador] = useState({});
 
-const FormDoacaoRecorrente = () => {
     const { handleSubmit, control, reset } = useForm();
 
-    const onSubmit = (data) => {
-        console.log(data);
-        axios.post(`${import.meta.env.VITE_URL_AXIOS}/createClientAndDonation.php`, data)
-            .then((response) => {
-                if(response.data.success){
-                    MySwal.fire({
-                        title: 'Sucesso!',
-                        text: response.data.message,
-                        icon: 'success',
-                        confirmButtonText: 'Ok'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.open(response.data.link, '_blank');
-                            reset();
-                        }
-                    })
-                } else {
-                    MySwal.fire({
-                        title: 'Erro!',
-                        text: response.data.message,
-                        icon: 'error',
-                        confirmButtonText: 'Ok'
-                    })
-                }               
-            })
-            .catch((error) => {
-                console.log(error.response);
-            });
-    };
+    const onSubmit = (doador) => {
+        console.log(doador);
 
+    };
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const loginToken = localStorage.getItem("loginToken");
+            if (loginToken) {
+                axios.defaults.headers.common["Authorization"] = "bearer " + loginToken;
+                try {
+                    const { data } = await axios.get(
+                        `https://amigosdacasa.org.br/gerenciador-doacoes-amigosdacasa/login_site/user-info.php`
+                    );
+                    if (data.success && data.user) {
+                        setIsAuth(true);
+                        setTheUser(data.user);
+                        setUpdate(!update);
+                        setDoador(theUser);
+                    } else {
+                        setIsAuth(false);
+                        setUpdate(!update);
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar informações do usuário:", error);
+                    setIsAuth(false);
+                    setUpdate(!update);
+                }
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    const logoutUser = () => {
+        localStorage.removeItem("loginToken");
+        setIsAuth(false);
+        setTheUser({});
+    }
+
+    console.log(theUser.name);
     return (
         <Card>
-            <h1>Formulário</h1>
+            <Button onClick={logoutUser}>Logout</Button>
             <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <Form.Item style={{ flexGrow: '3' }} label="Nome">
-                        <Controller
-                            name="nome"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field }) => <Input {...field} />}
-                        />
-                    </Form.Item>
-                    <Form.Item style={{ flexGrow: '1' }} label="CPF/CNPJ">
-                        <Controller
-                            name="cpfCnpj"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field }) => <Input {...field} />}
-                        />
-                    </Form.Item>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <Form.Item style={{ flexGrow: '1' }} label="Email">
-                        <Controller
-                            name="email"
-                            control={control}
-                            rules={{ required: true, type: 'email' }}
-                            render={({ field }) => <Input {...field} />}
-                        />
-                    </Form.Item>
-                    <Form.Item style={{ flexGrow: '1' }} label="Celular">
-                        <Controller
-                            name="celular"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field }) => <Input {...field} />}
-                        />
-                    </Form.Item>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <Form.Item style={{ flexGrow: '1' }} label="Valor">
-                        <Controller
-                            name="value"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field }) => <Input type="text" {...field} />}
-                        />
-                    </Form.Item>
-                    <Form.Item name="billingType" label="Método de Pagamento">
-                        <Controller
-                            name="billingType"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field }) => (
-                                <Select {...field} placeholder="Selecione o método de pagamento">
-                                    <Option value="BOLETO">Boleto</Option>
-                                    <Option value="CREDIT_CARD">Cartão de Crédito</Option>
-                                    <Option value="PIX">Pix</Option>
-                                    <Option value="UNDEFINED">Definir no pagamento</Option>
-                                </Select>
-                            )}
-                        />
-                    </Form.Item>
-                    <Form.Item style={{ flexGrow: '1' }} label="Data de Vencimento">
-                        <Controller
-                            name="dueDate"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field }) => <Input type="date" {...field} />}
-                        />
-                    </Form.Item>
-                </div>
+                <Form.Item label="Nome" labelCol={{ style: { fontWeight: 'bold' } }}>
+                    <Input placeholder="Nome" value={doador.name} onChange={(e) => setDoador({ ...doador, name: e.target.value })} /> 
+                </Form.Item>
                 <Form.Item>
                     <Button type="primary" htmlType="submit">
                         Enviar
                     </Button>
                 </Form.Item>
-                <Button onClick={() => reset()}>Limpar</Button>
             </Form>
+
         </Card>
-    );
+    )
 }
 
-export default FormDoacaoRecorrente;
+export default FormDoacaoRecorrente
+
+// ESTÁ CARREGANDO O NOME NO INCIO, É POSSÍVEL ALTERAR O INPUT, MAS NO ENVIO DO FORM VAI UM ARRAY VAZIO
+
+// {
+//     "success": 1,
+//     "status": 200,
+//     "user": {
+//         "id": "24",
+//         "customer_id": "cus_000076270191",
+//         "name": "Gabriel Gomes",
+//         "email": "gabriel.gomes@outlook.com",
+//         "bairro": "Lomba da Palmeira",
+//         "celular": "51997073430",
+//         "cep": "93225070",
+//         "cidade": "Sapucaia do Sul",
+//         "complemento": null,
+//         "cpf": "83029052087",
+//         "estado": "RS",
+//         "numero": "340",
+//         "rua": "Rua Gilberto Ferraz",
+//         "telefone": null
+//     }
+// }

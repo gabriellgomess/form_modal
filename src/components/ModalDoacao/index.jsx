@@ -1,10 +1,39 @@
 import React, { useState } from 'react';
-import { Segmented } from 'antd';
+import { ConfigProvider, Segmented } from 'antd';
 
 // Import components
 import FormDoacaoUnica from './FormDoacaoUnica';
-import FormDoacaoRecorrente from './FormDoacaoRecorrente';
+import DoacaoRecorrente from './DoacaoRecorrente';
 import DoacaoIR from './DoacaoIR';
+
+// Definindo tokens de design personalizados
+const theme = {
+  components: {
+    Segmented: {
+      itemSelectedBg: '#73c4bb',
+      itemSelectedColor: '#fff',
+    },
+    Button: {
+      colorPrimary: '#73c4bb',
+      colorPrimaryHover: '#97e1d9',
+      colorPrimaryActive: '#41958c',
+      colorPrimaryFocus: '#41958c',
+
+    },
+    Input: {
+      colorPrimary: '#73c4bb',
+      colorPrimaryActive: '#41958c',
+      colorPrimaryFocus: '#41958c',
+      colorPrimaryHover: '#97e1d9',
+    },
+    Select: {
+      colorPrimary: '#73c4bb',
+      colorPrimaryActive: '#41958c',
+      colorPrimaryFocus: '#41958c',
+      colorPrimaryHover: '#97e1d9',
+    },    
+  },
+};
 
 const Modal = () => {
   const [selectedOption, setSelectedOption] = useState('Doação Única');
@@ -14,7 +43,7 @@ const Modal = () => {
       case 'Doação Única':
         return <FormDoacaoUnica />;
       case 'Doação Recorrente':
-        return <FormDoacaoRecorrente />;
+        return <DoacaoRecorrente />;
       case 'Doação IR':
         return <DoacaoIR />;
       default:
@@ -23,14 +52,16 @@ const Modal = () => {
   };
 
   return (
-    <>
-      <Segmented 
-        options={['Doação Única', 'Doação Recorrente', 'Doação IR']}
-        onChange={(value) => setSelectedOption(value)}
-        style={{ marginBottom: '20px' }}
-      />
-      {renderContent()}
-    </>
+    <ConfigProvider theme={theme}>
+      <>
+        <Segmented
+          options={['Doação Única', 'Doação Recorrente', 'Doação IR']}
+          onChange={(value) => setSelectedOption(value)}
+          style={{ marginBottom: '20px' }}
+        />
+        {renderContent()}
+      </>
+    </ConfigProvider>
   );
 };
 

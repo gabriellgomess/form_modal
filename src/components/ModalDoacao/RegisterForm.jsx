@@ -1,66 +1,57 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Card, Select, Typography } from 'antd';
-import axios from 'axios';
-import swal from 'sweetalert';
+import React, { useState } from "react";
+import axios from "axios";
+import { Card, Typography, Form, Input, Button, Select, message } from "antd";
+
 
 const { Option } = Select;
 
 function RegisterForm({ handleShowLogin }) {
+  const [form] = Form.useForm();
+
   const initialState = {
     userInfo: {
-        name: "",
-        email: "",
-        password: "",
-        cpfCnpj: "",
-        address: "",
-        addressNumber: "",
-        complement: "",
-        province: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        phone: "",
-        mobilePhone: "",
+      name: "",
+      email: "",
+      password: "",
+      cpfCnpj: "",
+      address: "",
+      addressNumber: "",
+      complement: "",
+      province: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      phone: "",
+      mobilePhone: "",
     },
-    errorMsg: '',
-    successMsg: '',
+    errorMsg: "",
+    successMsg: "",
   };
 
   const [state, setState] = useState(initialState);
 
-  const submitForm = async (event) => {
-    event.preventDefault();
-
+  const submitForm = async () => {
     try {
       const response = await axios.post(
         "https://amigosdacasa.org.br/gerenciador-doacoes-amigosdacasa/login_site/register.php",
         state.userInfo
       );
+
       if (response.data.success) {
         setState({
           ...initialState,
           successMsg: response.data.message,
         });
-        swal({
-          title: "Cadastro realizado com sucesso!",
-          text: "Você será redirecionado para a página de login",
-          icon: "success",
-          button: "Ok",
-        }).then(() => {
-          handleShowLogin();
-        });
+
+
       } else {
         setState({
           ...state,
           successMsg: "",
           errorMsg: response.data.message,
         });
-        swal({
-          title: "Erro ao cadastrar!",
-          text: response.data.message,
-          icon: "error",
-          button: "Ok",
-        });
+
+
       }
     } catch (error) {
       console.error("Error during registration:", error);
@@ -70,8 +61,16 @@ function RegisterForm({ handleShowLogin }) {
   const fetchAddressByCEP = async (cep) => {
     try {
       const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
-      const {logradouro, bairro, localidade, uf} = response.data;
-  
+      const { logradouro, bairro, localidade, uf } = response.data;
+
+      // Set form field values using form.setFieldsValue
+      form.setFieldsValue({
+        address: logradouro,
+        province: bairro,
+        city: localidade,
+        state: uf,
+      });
+
       setState((prevState) => ({
         ...prevState,
         userInfo: {
@@ -87,106 +86,290 @@ function RegisterForm({ handleShowLogin }) {
     }
   };
 
+
+  const handleCEPChange = (cep) => {
+    setState((prevState) => ({
+      ...prevState,
+      userInfo: {
+        ...prevState.userInfo,
+        postalCode: cep,
+      },
+    }));
+
+    // Trigger address fetch when CEP is complete
+    if (cep.length === 8) {
+      fetchAddressByCEP(cep);
+    }
+  };
+
+  const onFinish = (values) => {
+    setState((prevState) => ({
+      ...prevState,
+      userInfo: {
+        ...prevState.userInfo,
+        ...values,
+      },
+    }));
+  };
+
   return (
-    <Card style={{ maxWidth: 800, margin: '0 auto' }}>
-      <Typography.Title level={4}>Cadastro de Doador</Typography.Title>
-      <Form
-  layout="vertical"
-  onFinish={submitForm}
-  style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
->
-  <Form.Item label="Nome" name="name" rules={[{ required: true, message: 'Por favor, insira seu nome!' }]}>
-    <Input placeholder="Digite seu nome completo" />
-  </Form.Item>
-
-  <Form.Item label="CPF" name="cpfCnpj" rules={[{ required: true, message: 'Por favor, insira seu CPF!' }]}>
-    <Input placeholder="Digite seu CPF" />
-  </Form.Item>
-
-  <Form.Item label="Usuário" name="email" rules={[{ required: true, message: 'Por favor, insira seu usuário!' }]}>
-    <Input placeholder="Digite seu usuário" />
-  </Form.Item>
-
-  <Form.Item label="Senha (8 dígitos)" name="password" rules={[{ required: true, message: 'Por favor, insira sua senha!' }]}>
-    <Input.Password placeholder="Digite sua senha" />
-  </Form.Item>
-
-  <Form.Item label="CEP" name="postalCode" rules={[{ required: true, message: 'Por favor, insira o CEP!' }]}>
-    <Input placeholder="Digite o CEP" />
-  </Form.Item>
-
-  <Form.Item label="Rua" name="address" rules={[{ required: true, message: 'Por favor, insira o endereço!' }]}>
-    <Input placeholder="Digite sua rua" />
-  </Form.Item>
-
-  <Form.Item label="Número" name="addressNumber" rules={[{ required: true, message: 'Por favor, insira o número!' }]}>
-    <Input placeholder="Digite o número" />
-  </Form.Item>
-
-  <Form.Item label="Complemento" name="complement">
-    <Input placeholder="Digite o complemento (opcional)" />
-  </Form.Item>
-
-  <Form.Item label="Cidade" name="city" rules={[{ required: true, message: 'Por favor, insira a cidade!' }]}>
-    <Input placeholder="Digite a cidade" />
-  </Form.Item>
-
-  <Form.Item label="Bairro" name="province" rules={[{ required: true, message: 'Por favor, insira o bairro!' }]}>
-    <Input placeholder="Digite o bairro" />
-  </Form.Item>
-
-  <Form.Item label="Estado" name="state" rules={[{ required: true, message: 'Por favor, selecione o estado!' }]}>
-    <Select placeholder="Selecione o estado">
-      {/* Opções de estados */}
-      <Option value="AC">AC</Option>
-        <Option value="AL">AL</Option>
-        <Option value="AP">AP</Option>
-        <Option value="AM">AM</Option>
-        <Option value="BA">BA</Option>
-        <Option value="CE">CE</Option>
-        <Option value="DF">DF</Option>
-        <Option value="ES">ES</Option>
-        <Option value="GO">GO</Option>
-        <Option value="MA">MA</Option>
-        <Option value="MT">MT</Option>
-        <Option value="MS">MS</Option>
-        <Option value="MG">MG</Option>
-        <Option value="PA">PA</Option>
-        <Option value="PB">PB</Option>
-        <Option value="PR">PR</Option>
-        <Option value="PE">PE</Option>
-        <Option value="PI">PI</Option>
-        <Option value="RJ">RJ</Option>
-        <Option value="RN">RN</Option>
-        <Option value="RS">RS</Option>
-        <Option value="RO">RO</Option>
-        <Option value="RR">RR</Option>
-        <Option value="SC">SC</Option>
-        <Option value="SP">SP</Option>
-        <Option value="SE">SE</Option>
-        <Option value="TO">TO</Option>        
-    </Select>
-  </Form.Item>
-
-  <Form.Item label="Telefone" name="phone">
-    <Input placeholder="Digite o telefone" />
-  </Form.Item>
-
-  <Form.Item label="Celular" name="mobilePhone" rules={[{ required: true, message: 'Por favor, insira o celular!' }]}>
-    <Input placeholder="Digite o celular" />
-  </Form.Item>
-
-  <Form.Item>
-    <Button type="primary" htmlType="submit" block>
-      Cadastrar
-    </Button>
-  </Form.Item>
-</Form>
-
-      <Button block onClick={handleShowLogin}>
-        Entrar
-      </Button>
-    </Card>
+    <div style={{ width: "100%" }}>
+      <Card
+        title="Cadastro de Doador"
+        style={{ width: "100%", padding: "16px" }}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={state.userInfo}
+        >
+          <Form.Item
+            label="Nome"
+            name="name"
+            rules={[{ required: true, message: "Por favor, insira seu nome" }]}
+          >
+            <Input
+              placeholder="Digite seu nome completo"
+              onChange={(e) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  userInfo: {
+                    ...prevState.userInfo,
+                    name: e.target.value,
+                  },
+                }))
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="CPF"
+            name="cpfCnpj"
+            rules={[
+              { required: true, message: "Por favor, insira seu CPF" },
+              {
+                pattern: /^\d{11}$/,
+                message: "O CPF deve conter 11 dígitos numéricos",
+              },
+            ]}
+          >
+            <Input placeholder="Digite seu CPF"
+              onChange={(e) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  userInfo: {
+                    ...prevState.userInfo,
+                    cpfCnpj: e.target.value,
+                  },
+                }))
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Usuário"
+            name="email"
+            rules={[
+              { required: true, message: "Por favor, insira seu usuário" },
+              {
+                type: "email",
+                message: "Por favor, insira um email válido",
+              },
+            ]}
+          >
+            <Input placeholder="Digite seu usuário"
+              onChange={(e) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  userInfo: {
+                    ...prevState.userInfo,
+                    email: e.target.value,
+                  },
+                }))
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Senha (8 dígitos)"
+            name="password"
+            rules={[
+              { required: true, message: "Por favor, insira sua senha" },
+              {
+                min: 8,
+                message: "A senha deve conter no mínimo 8 caracteres",
+              },
+            ]}
+          >
+            <Input.Password placeholder="Digite sua senha"
+              onChange={(e) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  userInfo: {
+                    ...prevState.userInfo,
+                    password: e.target.value,
+                  },
+                }))
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="CEP"
+            name="postalCode"
+            rules={[
+              { required: true, message: "Por favor, insira seu CEP" },
+              {
+                pattern: /^\d{8}$/,
+                message: "O CEP deve conter 8 dígitos numéricos",
+              },
+            ]}
+          >
+            <Input
+              placeholder="Digite o CEP"
+              onChange={(e) => handleCEPChange(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Rua"
+            name="address"
+            rules={[{ required: true, message: "Por favor, insira sua rua" }]}
+          >
+            <Input placeholder="Digite sua rua" />
+          </Form.Item>
+          <Form.Item
+            label="Número"
+            name="addressNumber"
+            rules={[
+              { required: true, message: "Por favor, insira o número" },
+            ]}
+          >
+            <Input placeholder="Digite o número"
+              onChange={(e) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  userInfo: {
+                    ...prevState.userInfo,
+                    addressNumber: e.target.value,
+                  },
+                }))
+              }
+            />
+          </Form.Item>
+          <Form.Item label="Complemento" name="complement">
+            <Input placeholder="Digite o complemento (opcional)"
+              onChange={(e) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  userInfo: {
+                    ...prevState.userInfo,
+                    complement: e.target.value,
+                  },
+                }))
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Cidade"
+            name="city"
+            rules={[{ required: true, message: "Por favor, insira a cidade" }]}
+          >
+            <Input placeholder="Digite a cidade" />
+          </Form.Item>
+          <Form.Item
+            label="Bairro"
+            name="province"
+            rules={[
+              { required: true, message: "Por favor, insira o bairro" },
+            ]}
+          >
+            <Input placeholder="Digite o bairro" />
+          </Form.Item>
+          <Form.Item
+            label="Estado"
+            name="state"
+            rules={[{ required: true, message: "Por favor, selecione o estado" }]}
+          >
+            <Select placeholder="Selecione o estado">
+              <Option value="AC">AC</Option>
+              <Option value="AL">AL</Option>
+              <Option value="AP">AP</Option>
+              <Option value="AM">AM</Option>
+              <Option value="BA">BA</Option>
+              <Option value="CE">CE</Option>
+              <Option value="DF">DF</Option>
+              <Option value="ES">ES</Option>
+              <Option value="GO">GO</Option>
+              <Option value="MA">MA</Option>
+              <Option value="MT">MT</Option>
+              <Option value="MS">MS</Option>
+              <Option value="MG">MG</Option>
+              <Option value="PA">PA</Option>
+              <Option value="PB">PB</Option>
+              <Option value="PR">PR</Option>
+              <Option value="PE">PE</Option>
+              <Option value="PI">PI</Option>
+              <Option value="RJ">RJ</Option>
+              <Option value="RN">RN</Option>
+              <Option value="RS">RS</Option>
+              <Option value="RO">RO</Option>
+              <Option value="RR">RR</Option>
+              <Option value="SC">SC</Option>
+              <Option value="SP">SP</Option>
+              <Option value="SE">SE</Option>
+              <Option value="TO">TO</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Telefone"
+            name="phone"
+            rules={[
+              { required: true, message: "Por favor, insira o telefone" },
+            ]}
+          >
+            <Input placeholder="Digite o telefone"
+              onChange={(e) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  userInfo: {
+                    ...prevState.userInfo,
+                    phone: e.target.value,
+                  },
+                }))
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Celular"
+            name="mobilePhone"
+            rules={[
+              { required: true, message: "Por favor, insira o celular" },
+            ]}
+          >
+            <Input placeholder="Digite o celular"
+              onChange={(e) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  userInfo: {
+                    ...prevState.userInfo,
+                    mobilePhone: e.target.value,
+                  },
+                }))
+              }
+            />
+          </Form.Item>
+          {state.errorMsg && (
+            <Typography.Text type="error">{state.errorMsg}</Typography.Text>
+          )}
+          {state.successMsg && (
+            <Typography.Text type="success">{state.successMsg}</Typography.Text>
+          )}
+          <Form.Item>
+            <Button type="primary" onClick={submitForm}>
+              Cadastrar
+            </Button>
+          </Form.Item>
+        </Form>
+        <Button onClick={handleShowLogin}>Entrar</Button>
+      </Card>
+    </div>
   );
 }
 
