@@ -31,7 +31,13 @@ const theme = {
       colorPrimaryActive: '#41958c',
       colorPrimaryFocus: '#41958c',
       colorPrimaryHover: '#97e1d9',
-    },    
+    },  
+    Tabs: {
+      colorPrimary: '#73c4bb',
+      colorPrimaryActive: '#41958c',
+      colorPrimaryFocus: '#41958c',
+      colorPrimaryHover: '#97e1d9',
+    }  
   },
 };
 

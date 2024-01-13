@@ -1,8 +1,9 @@
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Card } from 'antd';
 import React from 'react';
 
 const LoginForm = ({ handleLogin, handleChangeLogin, handleShowRegister }) => {
   return (
+    <Card>
     <Form
       onFinish={handleLogin}
       style={{
@@ -42,6 +43,7 @@ const LoginForm = ({ handleLogin, handleChangeLogin, handleShowRegister }) => {
         </Button>
       </Form.Item>
     </Form>
+    </Card>
   );
 };
 
