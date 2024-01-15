@@ -3,7 +3,7 @@ import React from 'react';
 
 const LoginForm = ({ handleLogin, handleChangeLogin, handleShowRegister }) => {
   return (
-    <Card>
+    <Card style={{minHeight: '600px'}}>
     <Form
       onFinish={handleLogin}
       style={{

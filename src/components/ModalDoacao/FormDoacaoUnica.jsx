@@ -8,7 +8,7 @@ import withReactContent from 'sweetalert2-react-content';
 const { Option } = Select;
 const MySwal = withReactContent(Swal);
 
-const FormDoacaoUnica = () => {
+const FormDoacaoUnica = ({isMobile}) => {
     const { handleSubmit, control, reset } = useForm();
 
     const onSubmit = (data) => {
@@ -42,11 +42,11 @@ const FormDoacaoUnica = () => {
     };
 
     return (
-        <Card>
+        <Card style={{minHeight: '600px'}}>
             <h1>Formulário</h1>
             <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    <Form.Item style={{ flexGrow: '3' }} label="Nome">
+                    <Form.Item style={isMobile ? { width: '100%' } : { flexGrow: 3 }} label="Nome">
                         <Controller
                             name="nome"
                             control={control}
@@ -54,7 +54,7 @@ const FormDoacaoUnica = () => {
                             render={({ field }) => <Input {...field} />}
                         />
                     </Form.Item>
-                    <Form.Item style={{ flexGrow: '1' }} label="CPF/CNPJ">
+                    <Form.Item style={isMobile ? { width: '100%' } : { flexGrow: 1 }} label="CPF/CNPJ">
                         <Controller
                             name="cpfCnpj"
                             control={control}
@@ -63,8 +63,8 @@ const FormDoacaoUnica = () => {
                         />
                     </Form.Item>
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <Form.Item style={{ flexGrow: '1' }} label="Email">
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <Form.Item style={isMobile ? { width: '100%' } : { flexGrow: 1 }} label="Email">
                         <Controller
                             name="email"
                             control={control}
@@ -72,7 +72,7 @@ const FormDoacaoUnica = () => {
                             render={({ field }) => <Input {...field} />}
                         />
                     </Form.Item>
-                    <Form.Item style={{ flexGrow: '1' }} label="Celular">
+                    <Form.Item style={isMobile ? { width: '100%' } : { flexGrow: 1 }} label="Celular">
                         <Controller
                             name="celular"
                             control={control}
@@ -81,8 +81,8 @@ const FormDoacaoUnica = () => {
                         />
                     </Form.Item>
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <Form.Item style={{ flexGrow: '1' }} label="Valor">
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <Form.Item style={isMobile ? { width: '100%' } : { flexGrow: 1 }} label="Valor">
                         <Controller
                             name="value"
                             control={control}
@@ -90,7 +90,7 @@ const FormDoacaoUnica = () => {
                             render={({ field }) => <Input type="text" {...field} />}
                         />
                     </Form.Item>
-                    <Form.Item name="billingType" label="Método de Pagamento">
+                    <Form.Item style={isMobile ? { width: '100%' } : { flexGrow: 1 }} name="billingType" label="Método de Pagamento">
                         <Controller
                             name="billingType"
                             control={control}
@@ -105,7 +105,7 @@ const FormDoacaoUnica = () => {
                             )}
                         />
                     </Form.Item>
-                    <Form.Item style={{ flexGrow: '1' }} label="Data de Vencimento">
+                    <Form.Item style={isMobile ? { width: '100%' } : { flexGrow: 1 }} label="Data de Vencimento">
                         <Controller
                             name="dueDate"
                             control={control}

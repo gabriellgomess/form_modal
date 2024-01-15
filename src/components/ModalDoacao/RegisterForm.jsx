@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Card, Typography, Form, Input, Button, Select, message } from "antd";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 
 const { Option } = Select;
 
-function RegisterForm({ handleShowLogin }) {
+function RegisterForm({ handleShowLogin, isMobile }) {
+
+  const MySwal = withReactContent(Swal);
+
   const [form] = Form.useForm();
 
   const initialState = {
@@ -42,6 +47,17 @@ function RegisterForm({ handleShowLogin }) {
           ...initialState,
           successMsg: response.data.message,
         });
+        MySwal.fire({
+          title: 'Sucesso!',
+          text: response.data.message,
+          icon: 'success',
+          confirmButtonText: 'Ok'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            handleShowLogin();
+            form.resetFields();
+          }
+        })
 
 
       } else {
@@ -50,6 +66,12 @@ function RegisterForm({ handleShowLogin }) {
           successMsg: "",
           errorMsg: response.data.message,
         });
+        MySwal.fire({
+          title: 'Erro!',
+          text: response.data.message,
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        })
 
 
       }
@@ -113,21 +135,23 @@ function RegisterForm({ handleShowLogin }) {
   };
 
   return (
-    <div style={{ width: "100%" }}>
-      <Card
-        title="Cadastro de Doador"
-        style={{ width: "100%", padding: "16px" }}
+
+    <Card
+      title="Cadastro de Doador"
+      style={{ width: "100%", padding: "16px" }}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={state.userInfo}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-          initialValues={state.userInfo}
-        >
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <Form.Item
             label="Nome"
             name="name"
             rules={[{ required: true, message: "Por favor, insira seu nome" }]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 3 }}
           >
             <Input
               placeholder="Digite seu nome completo"
@@ -152,6 +176,7 @@ function RegisterForm({ handleShowLogin }) {
                 message: "O CPF deve conter 11 dígitos numéricos",
               },
             ]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 1 }}
           >
             <Input placeholder="Digite seu CPF"
               onChange={(e) =>
@@ -165,18 +190,21 @@ function RegisterForm({ handleShowLogin }) {
               }
             />
           </Form.Item>
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <Form.Item
-            label="Usuário"
+            label="E-mail"
             name="email"
             rules={[
-              { required: true, message: "Por favor, insira seu usuário" },
+              { required: true, message: "Por favor, insira seu e-mail" },
               {
                 type: "email",
                 message: "Por favor, insira um email válido",
               },
             ]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 3 }}
           >
-            <Input placeholder="Digite seu usuário"
+            <Input placeholder="Digite seu e-mail"
               onChange={(e) =>
                 setState((prevState) => ({
                   ...prevState,
@@ -198,6 +226,7 @@ function RegisterForm({ handleShowLogin }) {
                 message: "A senha deve conter no mínimo 8 caracteres",
               },
             ]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 1 }}
           >
             <Input.Password placeholder="Digite sua senha"
               onChange={(e) =>
@@ -211,6 +240,8 @@ function RegisterForm({ handleShowLogin }) {
               }
             />
           </Form.Item>
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <Form.Item
             label="CEP"
             name="postalCode"
@@ -221,6 +252,7 @@ function RegisterForm({ handleShowLogin }) {
                 message: "O CEP deve conter 8 dígitos numéricos",
               },
             ]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 1 }}
           >
             <Input
               placeholder="Digite o CEP"
@@ -231,15 +263,19 @@ function RegisterForm({ handleShowLogin }) {
             label="Rua"
             name="address"
             rules={[{ required: true, message: "Por favor, insira sua rua" }]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 4 }}
           >
             <Input placeholder="Digite sua rua" />
           </Form.Item>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
           <Form.Item
             label="Número"
             name="addressNumber"
             rules={[
               { required: true, message: "Por favor, insira o número" },
             ]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 1 }}
           >
             <Input placeholder="Digite o número"
               onChange={(e) =>
@@ -253,8 +289,8 @@ function RegisterForm({ handleShowLogin }) {
               }
             />
           </Form.Item>
-          <Form.Item label="Complemento" name="complement">
-            <Input placeholder="Digite o complemento (opcional)"
+          <Form.Item style={isMobile ? { width: '100%' } : { flexGrow: 1 }} label="Complemento" name="complement">
+            <Input placeholder="Digite o complemento"
               onChange={(e) =>
                 setState((prevState) => ({
                   ...prevState,
@@ -266,10 +302,13 @@ function RegisterForm({ handleShowLogin }) {
               }
             />
           </Form.Item>
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <Form.Item
             label="Cidade"
             name="city"
             rules={[{ required: true, message: "Por favor, insira a cidade" }]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 4 }}
           >
             <Input placeholder="Digite a cidade" />
           </Form.Item>
@@ -279,6 +318,7 @@ function RegisterForm({ handleShowLogin }) {
             rules={[
               { required: true, message: "Por favor, insira o bairro" },
             ]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 4 }}
           >
             <Input placeholder="Digite o bairro" />
           </Form.Item>
@@ -286,6 +326,7 @@ function RegisterForm({ handleShowLogin }) {
             label="Estado"
             name="state"
             rules={[{ required: true, message: "Por favor, selecione o estado" }]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 1 }}
           >
             <Select placeholder="Selecione o estado">
               <Option value="AC">AC</Option>
@@ -317,12 +358,16 @@ function RegisterForm({ handleShowLogin }) {
               <Option value="TO">TO</Option>
             </Select>
           </Form.Item>
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <Form.Item
             label="Telefone"
             name="phone"
             rules={[
-              { required: true, message: "Por favor, insira o telefone" },
+              { required: false, message: "Por favor, insira o telefone" },
             ]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 1 }}
           >
             <Input placeholder="Digite o telefone"
               onChange={(e) =>
@@ -342,6 +387,7 @@ function RegisterForm({ handleShowLogin }) {
             rules={[
               { required: true, message: "Por favor, insira o celular" },
             ]}
+            style={isMobile ? { width: '100%' } : { flexGrow: 1 }}
           >
             <Input placeholder="Digite o celular"
               onChange={(e) =>
@@ -355,21 +401,23 @@ function RegisterForm({ handleShowLogin }) {
               }
             />
           </Form.Item>
-          {state.errorMsg && (
-            <Typography.Text type="error">{state.errorMsg}</Typography.Text>
-          )}
-          {state.successMsg && (
-            <Typography.Text type="success">{state.successMsg}</Typography.Text>
-          )}
-          <Form.Item>
-            <Button type="primary" onClick={submitForm}>
-              Cadastrar
-            </Button>
-          </Form.Item>
-        </Form>
-        <Button onClick={handleShowLogin}>Entrar</Button>
-      </Card>
-    </div>
+        </div>
+
+        {state.errorMsg && (
+          <Typography.Text type="error">{state.errorMsg}</Typography.Text>
+        )}
+        {state.successMsg && (
+          <Typography.Text type="success">{state.successMsg}</Typography.Text>
+        )}
+        <Form.Item>
+          <Button type="primary" onClick={submitForm}>
+            Cadastrar
+          </Button>
+        </Form.Item>
+      </Form>
+      <Button onClick={handleShowLogin}>Entrar</Button>
+    </Card>
+
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ConfigProvider, Segmented } from 'antd';
+import { useMediaQuery } from 'react-responsive';
 
 // Import components
 import FormDoacaoUnica from './FormDoacaoUnica';
@@ -44,14 +45,16 @@ const theme = {
 const Modal = () => {
   const [selectedOption, setSelectedOption] = useState('Doação Única');
 
+  const isMobile = useMediaQuery({ maxWidth: 767 });
+
   const renderContent = () => {
     switch (selectedOption) {
       case 'Doação Única':
-        return <FormDoacaoUnica />;
+        return <FormDoacaoUnica isMobile={isMobile} />;
       case 'Doação Recorrente':
-        return <DoacaoRecorrente />;
+        return <DoacaoRecorrente isMobile={isMobile} />;
       case 'Doação IR':
-        return <DoacaoIR />;
+        return <DoacaoIR isMobile={isMobile} />;
       default:
         return <div>Selecione uma opção</div>;
     }

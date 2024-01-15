@@ -5,7 +5,7 @@ import FormDoacaoRecorrente from './FormDoacaoRecorrente';
 
 import axios from 'axios';
 
-const AuthContainer = () => {
+const AuthContainer = ({isMobile}) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showRegister, setShowRegister] = useState(false);
     const [login, setLogin] = useState({
@@ -44,7 +44,7 @@ const AuthContainer = () => {
     };
 
     if (isLoggedIn) {
-        return <FormDoacaoRecorrente />;
+        return <FormDoacaoRecorrente isMobile={isMobile} />;
     }
 
     const handleChangeLogin = (e) => {
@@ -57,7 +57,7 @@ const AuthContainer = () => {
     return (
         <div>
             {showRegister ? (
-                <RegisterForm handleShowLogin={handleShowLogin} />
+                <RegisterForm handleShowLogin={handleShowLogin} isMobile={isMobile} />
             ) : (
                 <LoginForm
                     handleLogin={handleLogin}
